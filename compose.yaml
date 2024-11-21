@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   api:
     build:
@@ -5,7 +7,42 @@ services:
       target: builder
     container_name: fastapi-application
     environment:
-      PORT: 8000
+      - PORT=8000
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=root_password
+      - DATABASE_NAME=mydatabase
     ports:
       - '8000:8000'
+    depends_on:
+      - db
     restart: "no"
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-database
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - '3307:3306'
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - '8880:80'
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
